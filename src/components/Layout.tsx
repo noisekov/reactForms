@@ -9,7 +9,7 @@ const Layout = () => {
         <Link to={'/reactForms/form-uncontorl'}>Uncontorl form</Link>
         <Link to={'/reactForms/form-contorl'}>Contol form</Link>
       </header>
-      <div style={{ flexGrow: 1, alignItems: 'center', display: 'flex' }}>
+      <div className={styles.layout}>
         <Outlet />
       </div>
       <footer className={styles.footer}>Create by noisekov</footer>

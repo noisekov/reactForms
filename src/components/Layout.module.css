@@ -17,3 +17,11 @@
   align-items: center;
   justify-content: center;
 }
+
+.layout {
+  flex-grow: 1;
+  align-items: center;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
