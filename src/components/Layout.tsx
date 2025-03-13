@@ -12,7 +12,7 @@ const Layout = () => {
       <div style={{ flexGrow: 1, alignItems: 'center', display: 'flex' }}>
         <Outlet />
       </div>
-      <footer>ya foter</footer>
+      <footer className={styles.footer}>Create by noisekov</footer>
     </div>
   );
 };
