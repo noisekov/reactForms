@@ -5,9 +5,9 @@ const Layout = () => {
   return (
     <div className={styles.body}>
       <header className={styles.header}>
-        <Link to={'/'}>Home</Link>
-        <Link to={'/form-uncontorl'}>Uncontorl form</Link>
-        <Link to={'/form-contorl'}>Contol form</Link>
+        <Link to={'/reactForms'}>Home</Link>
+        <Link to={'/reactForms/form-uncontorl'}>Uncontorl form</Link>
+        <Link to={'/reactForms/form-contorl'}>Contol form</Link>
       </header>
       <div style={{ flexGrow: 1, alignItems: 'center', display: 'flex' }}>
         <Outlet />

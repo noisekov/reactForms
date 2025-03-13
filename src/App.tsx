@@ -8,9 +8,9 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/reactForms" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="/form-uncontorl" element={<FormUncontrol />} />
+          <Route path="form-uncontorl" element={<FormUncontrol />} />
           <Route path="form-contorl" element={<FormControl />} />
         </Route>
       </Routes>
