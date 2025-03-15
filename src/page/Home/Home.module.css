@@ -1,0 +1,20 @@
+.code {
+  text-align: left;
+  border: none;
+  animation: animation 1s linear;
+}
+
+@keyframes animation {
+  0% {
+    border: 1px solid red;
+  }
+  33% {
+    border: none;
+  }
+  66% {
+    border: 1px solid red;
+  }
+  100% {
+    border: none;
+  }
+}

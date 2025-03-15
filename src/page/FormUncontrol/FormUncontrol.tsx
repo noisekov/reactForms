@@ -2,6 +2,8 @@ import { z } from 'zod';
 import styles from './FormUncontrol.module.css';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addData } from '../../features/dataSlice';
 
 type formData = {
   name: string;
@@ -11,14 +13,18 @@ type formData = {
   repeatPassword: string;
   sex: string;
   terms: boolean;
+  country: string;
+  image: string;
 };
 
 const FormUncontrol = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     const formData: formData = {
       name: '',
       age: 0,
@@ -27,9 +33,15 @@ const FormUncontrol = () => {
       repeatPassword: '',
       sex: '',
       terms: false,
+      country: '',
+      image: '',
     };
 
     for (const input of event.target) {
+      if (input.name.includes('err') || input.name === 'submit') {
+        continue;
+      }
+
       if (input.name === 'terms') {
         formData[input.name] = input.checked;
 
@@ -106,6 +118,7 @@ const FormUncontrol = () => {
       if (err.issues.length) return;
     }
 
+    dispatch(addData(formData));
     navigate('/reactForms');
   };
 
