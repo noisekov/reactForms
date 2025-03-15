@@ -1,0 +1,20 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.error {
+  display: block;
+  height: 15px;
+  text-align: left;
+  font-size: 10px;
+  color: red;
+}

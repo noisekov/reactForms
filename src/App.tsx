@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
-import Home from './page/Home';
-import FormUncontrol from './page/FormUncontrol';
+import Home from './page/Home/Home';
+import FormUncontrol from './page/FormUncontrol/FormUncontrol';
 import FormControl from './page/FormControl/FormControl';
 
 function App() {
