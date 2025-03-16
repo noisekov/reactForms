@@ -24,7 +24,7 @@ const formValidation = z
   .object({
     name: z
       .string()
-      .min(1, { message: 'Name is required' })
+      .min(1, { message: 'First letter must be uppercased' })
       .refine((val) => val[0] === val[0]?.toUpperCase(), {
         message: `First letter must be uppercased`,
       }),
