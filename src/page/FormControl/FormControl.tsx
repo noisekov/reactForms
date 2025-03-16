@@ -15,7 +15,7 @@ interface IFormData {
   sex: string;
   terms: boolean;
   country: string;
-  image: string;
+  image: FileList;
 }
 
 const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB
@@ -63,7 +63,9 @@ const formValidation = z
       .refine(([file]) => file?.size <= FILE_SIZE_LIMIT, {
         message: 'File size should not exceed 1MB',
       }),
-    // country: z.string().email({ message: 'Invalid email address' }),
+    country: z.string().refine((val) => !!val, {
+      message: `Choose country`,
+    }),
   })
   .refine((data) => data.password === data.repeatPassword, {
     message: "Passwords don't match",
@@ -115,15 +117,8 @@ export default function FormControl() {
       <output className={styles.error}>{errors.terms?.message}</output>
       <input {...register('image')} type="file" />
       <output className={styles.error}>{errors.image?.message}</output>
-
-      <button name="submit" type="submit">
-        Submit
-      </button>
-
-      {/* 
-     
       <label className={styles.label}>
-        <input type="text" name="country" list="countries" />
+        <input type="text" list="countries" {...register('country')} />
         Country
         <datalist id="countries">
           {['Ukraine', 'Russia', 'Belarus', 'Poland', 'Germany'].map(
@@ -133,8 +128,10 @@ export default function FormControl() {
           )}
         </datalist>
       </label>
-      <output className={styles.error} name="err-country"></output>
-       */}
+      <output className={styles.error}>{errors.country?.message}</output>
+      <button className={styles.button} name="submit" type="submit">
+        Submit
+      </button>
     </form>
   );
 }

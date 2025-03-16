@@ -66,7 +66,9 @@ const FormUncontrol = () => {
       terms: z.boolean().refine((val) => val === true, {
         message: `Accept terms`,
       }),
-      // country: z.string().email({ message: 'Invalid email address' }),
+      country: z.string().refine((val) => !!val, {
+        message: `Choose country`,
+      }),
     })
     .refine((data) => data.password === data.repeatPassword, {
       message: "Passwords don't match",
@@ -186,7 +188,7 @@ const FormUncontrol = () => {
           </datalist>
         </label>
         <output className={styles.error} name="err-country"></output>
-        <button name="submit" type="submit">
+        <button className={styles.button} name="submit" type="submit">
           Submit
         </button>
       </form>
