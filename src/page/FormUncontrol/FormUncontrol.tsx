@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addData } from '../../features/dataSlice';
 
-interface formData {
+interface IFormData {
   name: string;
   age: number;
   email: string;
@@ -22,7 +22,7 @@ const FormUncontrol = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const formData: formData = {
+  const formData: IFormData = {
     name: '',
     age: 0,
     email: '',
@@ -112,7 +112,7 @@ const FormUncontrol = () => {
         continue;
       }
 
-      (formData[inputElement.name as keyof formData] as string) =
+      (formData[inputElement.name as keyof IFormData] as string) =
         inputElement.value;
     }
 
@@ -147,7 +147,8 @@ const FormUncontrol = () => {
   };
 
   return (
-    <>
+    <div>
+      <p>Form Uncontrol</p>
       <form ref={formRef} className={styles.form} onSubmit={submit}>
         <input type="text" name="name" placeholder="Name" />
         <output className={styles.error} name="err-name"></output>
@@ -192,7 +193,7 @@ const FormUncontrol = () => {
           Submit
         </button>
       </form>
-    </>
+    </div>
   );
 };
 

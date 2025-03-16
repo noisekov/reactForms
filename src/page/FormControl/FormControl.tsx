@@ -89,49 +89,58 @@ export default function FormControl() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-      <input placeholder="Name" {...register('name')} />
-      <output className={styles.error}>{errors.name?.message}</output>
-      <input type="number" placeholder="Age" {...register('age')} />
-      <output className={styles.error}>{errors.age?.message}</output>
-      <input type="email" placeholder="Email" {...register('email')} />
-      <output className={styles.error}>{errors.email?.message}</output>
-      <input type="password" placeholder="Password" {...register('password')} />
-      <output className={styles.error}>{errors.password?.message}</output>
-      <input
-        type="password"
-        placeholder="Repeat password"
-        {...register('repeatPassword')}
-      />
-      <output className={styles.error}>{errors.repeatPassword?.message}</output>
-      <select {...register('sex')}>
-        <option value="choose">-- Choose sex --</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-      <output className={styles.error}>{errors.sex?.message}</output>
-      <label className={styles.label}>
-        <input type="checkbox" {...register('terms')} />
-        Accept terms and conditions agreement
-      </label>
-      <output className={styles.error}>{errors.terms?.message}</output>
-      <input {...register('image')} type="file" />
-      <output className={styles.error}>{errors.image?.message}</output>
-      <label className={styles.label}>
-        <input type="text" list="countries" {...register('country')} />
-        Country
-        <datalist id="countries">
-          {['Ukraine', 'Russia', 'Belarus', 'Poland', 'Germany'].map(
-            (country, index) => (
-              <option key={index} value={country} />
-            )
-          )}
-        </datalist>
-      </label>
-      <output className={styles.error}>{errors.country?.message}</output>
-      <button className={styles.button} name="submit" type="submit">
-        Submit
-      </button>
-    </form>
+    <div>
+      <p>Form Control</p>
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+        <input placeholder="Name" {...register('name')} />
+        <output className={styles.error}>{errors.name?.message}</output>
+        <input type="number" placeholder="Age" {...register('age')} />
+        <output className={styles.error}>{errors.age?.message}</output>
+        <input type="email" placeholder="Email" {...register('email')} />
+        <output className={styles.error}>{errors.email?.message}</output>
+        <input
+          type="password"
+          placeholder="Password"
+          {...register('password')}
+        />
+        <output className={styles.error}>{errors.password?.message}</output>
+        <input
+          type="password"
+          placeholder="Repeat password"
+          {...register('repeatPassword')}
+        />
+        <output className={styles.error}>
+          {errors.repeatPassword?.message}
+        </output>
+        <select {...register('sex')}>
+          <option value="choose">-- Choose sex --</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        <output className={styles.error}>{errors.sex?.message}</output>
+        <label className={styles.label}>
+          <input type="checkbox" {...register('terms')} />
+          Accept terms and conditions agreement
+        </label>
+        <output className={styles.error}>{errors.terms?.message}</output>
+        <input {...register('image')} type="file" />
+        <output className={styles.error}>{errors.image?.message}</output>
+        <label className={styles.label}>
+          <input type="text" list="countries" {...register('country')} />
+          Country
+          <datalist id="countries">
+            {['Ukraine', 'Russia', 'Belarus', 'Poland', 'Germany'].map(
+              (country, index) => (
+                <option key={index} value={country} />
+              )
+            )}
+          </datalist>
+        </label>
+        <output className={styles.error}>{errors.country?.message}</output>
+        <button className={styles.button} name="submit" type="submit">
+          Submit
+        </button>
+      </form>
+    </div>
   );
 }
