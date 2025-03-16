@@ -57,7 +57,9 @@ const FormUncontrol = () => {
         }
       ),
       repeatPassword: z.string(),
-      // sex: z.string().email({ message: 'Invalid email address' }),
+      sex: z.string().refine((val) => val !== 'choose', {
+        message: `Choose gender`,
+      }),
       // terms: z.string().email({ message: 'Invalid email address' }),
       // image: z.string().email({ message: 'Invalid email address' }),
       // country: z.string().email({ message: 'Invalid email address' }),
@@ -156,7 +158,7 @@ const FormUncontrol = () => {
         />
         <output className={styles.error} name="err-repeatPassword"></output>
         <select name="sex">
-          <option disabled>-- Choose sex --</option>
+          <option value="choose">-- Choose sex --</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
         </select>

@@ -12,10 +12,10 @@ interface IFormData {
   email: string;
   password: string;
   repeatPassword: string;
-  // sex: string;
-  // terms: boolean;
-  // country: string;
-  // image: string;
+  sex: string;
+  terms: boolean;
+  country: string;
+  image: string;
 }
 
 const formValidation = z
@@ -41,6 +41,12 @@ const formValidation = z
       }
     ),
     repeatPassword: z.string(),
+    sex: z.string().refine((val) => val !== 'choose', {
+      message: `Choose gender`,
+    }),
+    // terms: z.string().email({ message: 'Invalid email address' }),
+    // image: z.string().email({ message: 'Invalid email address' }),
+    // country: z.string().email({ message: 'Invalid email address' }),
   })
   .refine((data) => data.password === data.repeatPassword, {
     message: "Passwords don't match",
@@ -79,18 +85,19 @@ export default function FormControl() {
         {...register('repeatPassword')}
       />
       <output className={styles.error}>{errors.repeatPassword?.message}</output>
+      <select {...register('sex')}>
+        <option value="choose">-- Choose sex --</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <output className={styles.error}>{errors.sex?.message}</output>
 
       <button name="submit" type="submit">
         Submit
       </button>
 
       {/* 
-      <select name="sex">
-        <option disabled>-- Choose sex --</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-      <output className={styles.error} name="err-sex"></output>
+      
       <label className={styles.label}>
         <input type="checkbox" name="terms" />
         Accept terms and conditions agreement
