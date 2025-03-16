@@ -21,34 +21,57 @@ const FormUncontrol = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const formData: formData = {
+    name: '',
+    age: 0,
+    email: '',
+    password: '',
+    repeatPassword: '',
+    sex: '',
+    terms: false,
+    country: '',
+    image: '',
+  };
 
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const formData: formData = {
-      name: '',
-      age: 0,
-      email: '',
-      password: '',
-      repeatPassword: '',
-      sex: '',
-      terms: false,
-      country: '',
-      image: '',
-    };
+    for (const input of event.target as HTMLFormElement) {
+      const inputElement = input as HTMLInputElement | HTMLSelectElement;
 
-    for (const input of event.target) {
-      if (input.name.includes('err') || input.name === 'submit') {
+      if (inputElement.name.includes('err') || inputElement.name === 'submit') {
         continue;
       }
 
-      if (input.name === 'terms') {
-        formData[input.name] = input.checked;
+      if (inputElement.name === 'terms') {
+        formData[inputElement.name] = (
+          inputElement as HTMLInputElement
+        ).checked;
 
         continue;
       }
 
-      formData[input.name] = input.value;
+      if (inputElement.name === 'image') {
+        const inputElementWithFiles = inputElement as HTMLInputElement & {
+          files: FileList | null;
+        };
+        const file = inputElementWithFiles.files?.[0];
+
+        if (file) {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+
+          reader.onload = async () => {
+            // const base64String = reader.result;
+            // formData[inputElement.name] = base64String;
+          };
+        }
+
+        continue;
+      }
+
+      (formData[inputElement.name as keyof formData] as string) =
+        inputElement.value;
     }
 
     const formValidation = z
@@ -86,36 +109,28 @@ const FormUncontrol = () => {
 
     try {
       formValidation.parse(formData);
-      const success = formValidation.safeParse(formData);
-
-      Object.keys(success.data).forEach((errElem) => {
-        if (formRef.current) {
-          formRef.current[`err-${errElem}`].value = '';
-        }
-      });
     } catch (err) {
-      console.log(err);
-      const dataForm = Object.keys(formData).filter(
-        (elem) => !elem.includes('err')
-      );
+      if (err instanceof z.ZodError) {
+        Object.keys(formData).forEach((elem) => {
+          const errorElem = err.issues.find(
+            (errElem) => errElem.path[0] === elem
+          );
 
-      dataForm.forEach((elem) => {
-        const errorElem = err.issues.find(
-          (errElem) => errElem.path[0] === elem
-        );
+          if (formRef.current) {
+            if (!errorElem) {
+              (formRef.current[`err-${elem}`] as HTMLInputElement).value = '';
 
-        if (formRef.current) {
-          if (errorElem) {
-            formRef.current[`err-${elem}`].value = errorElem.message;
+              return;
+            }
 
-            return;
+            (formRef.current[`err-${elem}`] as HTMLInputElement).value =
+              errorElem.message;
           }
+        });
+      }
 
-          formRef.current[`err-${elem}`].value = '';
-        }
-      });
-
-      if (err.issues.length) return;
+      const zodError = err as z.ZodError;
+      if (zodError.issues.length) return;
     }
 
     dispatch(addData(formData));

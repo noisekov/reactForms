@@ -1,5 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
-// import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface formData {
   name: string;
@@ -12,6 +11,7 @@ export interface formData {
   country: string;
   image: string;
 }
+
 const initialState: formData = {
   name: '',
   age: 0,
@@ -28,7 +28,7 @@ export const dataSlice = createSlice({
   name: 'data',
   initialState,
   reducers: {
-    addData: (state, action) => {
+    addData: (state, action: PayloadAction<formData>) => {
       return { ...state, ...action.payload };
     },
     clearData: () => {

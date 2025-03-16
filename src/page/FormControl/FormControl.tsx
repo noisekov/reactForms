@@ -1,3 +1,4 @@
+// import { useForm } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import styles from './FormControl.module.css';
 
@@ -7,11 +8,14 @@ const FormControl = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
+  // const onSubmit = (data) => console.log(data);
   console.log(errors);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+    <form
+      onSubmit={handleSubmit((data) => console.log(data))}
+      className={styles.form}
+    >
       <input
         type="text"
         placeholder="First name"
