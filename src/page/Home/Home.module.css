@@ -2,6 +2,7 @@
   text-align: left;
   border: none;
   animation: animation 1s linear;
+  width: 500px;
 }
 
 @keyframes animation {

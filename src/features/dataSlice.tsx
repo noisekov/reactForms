@@ -9,7 +9,7 @@ export interface formData {
   sex: string;
   terms: boolean;
   country: string;
-  image: FileList | string;
+  image: FileList | ArrayBuffer | null | string;
 }
 
 const initialState: formData = {

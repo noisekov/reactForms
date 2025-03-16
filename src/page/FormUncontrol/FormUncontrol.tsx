@@ -17,6 +17,16 @@ interface IFormData {
   image: string;
 }
 
+// const readFileAsBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+//     reader.readAsDataURL(file);
+
+//     reader.onload = () => resolve(reader.result);
+//     reader.onerror = (error) => reject(error);
+//   });
+// };
+
 const FormUncontrol = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
@@ -33,6 +43,8 @@ const FormUncontrol = () => {
     country: '',
     image: '',
   };
+
+  const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB
   const SPECIAL_CHARS = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
   const hasNumber = /\d/;
   const hasUppercase = /[A-Z]/;
@@ -75,6 +87,43 @@ const FormUncontrol = () => {
       terms: z.boolean().refine((val) => val === true, {
         message: `Accept terms`,
       }),
+      image: z
+        .union([
+          z.string(),
+          z.instanceof(FileList),
+          z.instanceof(ArrayBuffer),
+          z.null(),
+        ])
+        .refine(
+          (files) => {
+            if (!(files instanceof FileList)) return true;
+
+            return files.length > 0;
+          },
+          {
+            message: 'No files selected',
+          }
+        )
+        .refine(
+          (file) => {
+            if (!(file instanceof FileList)) return true;
+
+            return ['image/png', 'image/jpeg'].includes(file[0]?.type);
+          },
+          {
+            message: 'Invalid image file type',
+          }
+        )
+        .refine(
+          (file) => {
+            if (!(file instanceof FileList)) return true;
+
+            return file[0]?.size <= FILE_SIZE_LIMIT;
+          },
+          {
+            message: 'File size should not exceed 1MB',
+          }
+        ),
       country: z.string().refine((val) => !!val, {
         message: `Choose country`,
       }),
@@ -109,13 +158,8 @@ const FormUncontrol = () => {
         const file = inputElementWithFiles.files?.[0];
 
         if (file) {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-
-          reader.onload = async () => {
-            // const base64String = reader.result;
-            // formData[inputElement.name] = base64String;
-          };
+          // const base64String = await readFileAsBase64(file);
+          // formData[inputElement.name] = base64String;
         }
 
         continue;

@@ -15,7 +15,7 @@ interface IFormData {
   sex: string;
   terms: boolean;
   country: string;
-  image: FileList;
+  image: FileList | ArrayBuffer | null | string;
 }
 
 const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB
@@ -62,16 +62,42 @@ const formValidation = z
       message: `Accept terms`,
     }),
     image: z
-      .instanceof(FileList)
-      .refine((files) => files.length > 0, {
-        message: 'No files selected',
-      })
-      .refine(([file]) => ['image/png', 'image/jpeg'].includes(file?.type), {
-        message: 'Invalid image file type',
-      })
-      .refine(([file]) => file?.size <= FILE_SIZE_LIMIT, {
-        message: 'File size should not exceed 1MB',
-      }),
+      .union([
+        z.string(),
+        z.instanceof(FileList),
+        z.instanceof(ArrayBuffer),
+        z.null(),
+      ])
+      .refine(
+        (files) => {
+          if (!(files instanceof FileList)) return true;
+
+          return files.length > 0;
+        },
+        {
+          message: 'No files selected',
+        }
+      )
+      .refine(
+        (file) => {
+          if (!(file instanceof FileList)) return true;
+
+          return ['image/png', 'image/jpeg'].includes(file[0]?.type);
+        },
+        {
+          message: 'Invalid image file type',
+        }
+      )
+      .refine(
+        (file) => {
+          if (!(file instanceof FileList)) return true;
+
+          return file[0]?.size <= FILE_SIZE_LIMIT;
+        },
+        {
+          message: 'File size should not exceed 1MB',
+        }
+      ),
     country: z.string().refine((val) => !!val, {
       message: `Choose country`,
     }),
@@ -80,6 +106,16 @@ const formValidation = z
     message: "Passwords don't match",
     path: ['repeatPassword'],
   });
+
+const readFileAsBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 export default function FormControl() {
   const {
@@ -92,7 +128,16 @@ export default function FormControl() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<IFormData> = (data) => {
+  const onSubmit: SubmitHandler<IFormData> = async (data) => {
+    if (data.image instanceof FileList) {
+      const file = data.image[0];
+
+      if (file && file instanceof File) {
+        const base64String = await readFileAsBase64(file);
+        data.image = base64String;
+      }
+    }
+
     dispatch(addData(data));
     navigate('/reactForms');
   };
