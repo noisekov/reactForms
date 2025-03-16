@@ -33,6 +33,13 @@ const FormUncontrol = () => {
     country: '',
     image: '',
   };
+  const SPECIAL_CHARS = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
+  const hasNumber = /\d/;
+  const hasUppercase = /[A-Z]/;
+  const hasLowercase = /[a-z]/;
+  const hasSpecialChar = new RegExp(
+    `[${SPECIAL_CHARS.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`
+  );
 
   const formValidation = z
     .object({
@@ -47,18 +54,20 @@ const FormUncontrol = () => {
         z.number().positive('No negative values')
       ),
       email: z.string().email({ message: 'Invalid email address' }),
-      password: z.string().refine(
-        (password) => {
-          return password.split('').some((char) => {
-            if (typeof +char === 'number' && !Number.isNaN(+char)) {
-              return true;
-            }
-          });
-        },
-        {
-          message: `1 number, 1 uppercased letter, 1 lowercased letter, 1 special character`,
-        }
-      ),
+      password: z
+        .string()
+        .refine((password) => hasNumber.test(password), {
+          message: 'Password must contain at least 1 number',
+        })
+        .refine((password) => hasUppercase.test(password), {
+          message: 'Password must contain at least 1 uppercase letter',
+        })
+        .refine((password) => hasLowercase.test(password), {
+          message: 'Password must contain at least 1 lowercase letter',
+        })
+        .refine((password) => hasSpecialChar.test(password), {
+          message: `Must contain special character: ${SPECIAL_CHARS}`,
+        }),
       repeatPassword: z.string(),
       sex: z.string().refine((val) => val !== 'choose', {
         message: `Choose gender`,
