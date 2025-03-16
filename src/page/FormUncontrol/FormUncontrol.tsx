@@ -60,7 +60,9 @@ const FormUncontrol = () => {
       sex: z.string().refine((val) => val !== 'choose', {
         message: `Choose gender`,
       }),
-      // terms: z.string().email({ message: 'Invalid email address' }),
+      terms: z.boolean().refine((val) => val === true, {
+        message: `Accept terms`,
+      }),
       // image: z.string().email({ message: 'Invalid email address' }),
       // country: z.string().email({ message: 'Invalid email address' }),
     })

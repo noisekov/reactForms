@@ -44,7 +44,9 @@ const formValidation = z
     sex: z.string().refine((val) => val !== 'choose', {
       message: `Choose gender`,
     }),
-    // terms: z.string().email({ message: 'Invalid email address' }),
+    terms: z.boolean().refine((val) => val === true, {
+      message: `Accept terms`,
+    }),
     // image: z.string().email({ message: 'Invalid email address' }),
     // country: z.string().email({ message: 'Invalid email address' }),
   })
@@ -91,6 +93,11 @@ export default function FormControl() {
         <option value="female">Female</option>
       </select>
       <output className={styles.error}>{errors.sex?.message}</output>
+      <label className={styles.label}>
+        <input type="checkbox" {...register('terms')} />
+        Accept terms and conditions agreement
+      </label>
+      <output className={styles.error}>{errors.terms?.message}</output>
 
       <button name="submit" type="submit">
         Submit
