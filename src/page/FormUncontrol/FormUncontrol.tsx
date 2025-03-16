@@ -14,18 +14,18 @@ interface IFormData {
   sex: string;
   terms: boolean;
   country: string;
-  image: string;
+  image: FileList | ArrayBuffer | null | string;
 }
 
-// const readFileAsBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.readAsDataURL(file);
+const readFileAsBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
 
-//     reader.onload = () => resolve(reader.result);
-//     reader.onerror = (error) => reject(error);
-//   });
-// };
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 const FormUncontrol = () => {
   const formRef = useRef(null);
@@ -44,7 +44,6 @@ const FormUncontrol = () => {
     image: '',
   };
 
-  const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB
   const SPECIAL_CHARS = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
   const hasNumber = /\d/;
   const hasUppercase = /[A-Z]/;
@@ -94,34 +93,19 @@ const FormUncontrol = () => {
           z.instanceof(ArrayBuffer),
           z.null(),
         ])
-        .refine(
-          (files) => {
-            if (!(files instanceof FileList)) return true;
-
-            return files.length > 0;
-          },
-          {
-            message: 'No files selected',
-          }
-        )
+        .refine((files) => Boolean(files), {
+          message: 'No files selected',
+        })
         .refine(
           (file) => {
-            if (!(file instanceof FileList)) return true;
+            if (typeof file !== 'string') return true;
 
-            return ['image/png', 'image/jpeg'].includes(file[0]?.type);
+            return ['image/png', 'image/jpeg'].some((type) =>
+              file.includes(type)
+            );
           },
           {
             message: 'Invalid image file type',
-          }
-        )
-        .refine(
-          (file) => {
-            if (!(file instanceof FileList)) return true;
-
-            return file[0]?.size <= FILE_SIZE_LIMIT;
-          },
-          {
-            message: 'File size should not exceed 1MB',
           }
         ),
       country: z.string().refine((val) => !!val, {
@@ -158,8 +142,8 @@ const FormUncontrol = () => {
         const file = inputElementWithFiles.files?.[0];
 
         if (file) {
-          // const base64String = await readFileAsBase64(file);
-          // formData[inputElement.name] = base64String;
+          const base64String = await readFileAsBase64(file);
+          formData[inputElement.name] = base64String;
         }
 
         continue;
