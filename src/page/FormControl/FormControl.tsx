@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch } from 'react-redux';
 import { addData } from '../../features/dataSlice';
 import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 
 interface IFormData {
   name: string;
@@ -27,86 +28,6 @@ const hasSpecialChar = new RegExp(
   `[${SPECIAL_CHARS.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`
 );
 
-const formValidation = z
-  .object({
-    name: z
-      .string()
-      .min(1, { message: 'First letter must be uppercased' })
-      .refine((val) => val[0] === val[0]?.toUpperCase(), {
-        message: `First letter must be uppercased`,
-      }),
-    age: z.preprocess(
-      (val) => +z.string().parse(val),
-      z.number().positive('No negative values')
-    ),
-    email: z.string().email({ message: 'Invalid email address' }),
-    password: z
-      .string()
-      .refine((password) => hasNumber.test(password), {
-        message: 'Password must contain at least 1 number',
-      })
-      .refine((password) => hasUppercase.test(password), {
-        message: 'Password must contain at least 1 uppercase letter',
-      })
-      .refine((password) => hasLowercase.test(password), {
-        message: 'Password must contain at least 1 lowercase letter',
-      })
-      .refine((password) => hasSpecialChar.test(password), {
-        message: `Must contain special character: ${SPECIAL_CHARS}`,
-      }),
-    repeatPassword: z.string(),
-    sex: z.string().refine((val) => val !== 'choose', {
-      message: `Choose gender`,
-    }),
-    terms: z.boolean().refine((val) => val === true, {
-      message: `Accept terms`,
-    }),
-    image: z
-      .union([
-        z.string(),
-        z.instanceof(FileList),
-        z.instanceof(ArrayBuffer),
-        z.null(),
-      ])
-      .refine(
-        (files) => {
-          if (!(files instanceof FileList)) return true;
-
-          return files.length > 0;
-        },
-        {
-          message: 'No files selected',
-        }
-      )
-      .refine(
-        (file) => {
-          if (!(file instanceof FileList)) return true;
-
-          return ['image/png', 'image/jpeg'].includes(file[0]?.type);
-        },
-        {
-          message: 'Invalid image file type',
-        }
-      )
-      .refine(
-        (file) => {
-          if (!(file instanceof FileList)) return true;
-
-          return file[0]?.size <= FILE_SIZE_LIMIT;
-        },
-        {
-          message: 'File size should not exceed 1MB',
-        }
-      ),
-    country: z.string().refine((val) => !!val, {
-      message: `Choose country`,
-    }),
-  })
-  .refine((data) => data.password === data.repeatPassword, {
-    message: "Passwords don't match",
-    path: ['repeatPassword'],
-  });
-
 const readFileAsBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -118,6 +39,113 @@ const readFileAsBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
 };
 
 export default function FormControl() {
+  const validatePassword = (password: string) => {
+    let passedConditions = 0;
+
+    if (hasNumber.test(password)) passedConditions++;
+    if (hasUppercase.test(password)) passedConditions++;
+    if (hasLowercase.test(password)) passedConditions++;
+    if (hasSpecialChar.test(password)) passedConditions++;
+
+    if (ref.current === null) return false;
+
+    switch (passedConditions) {
+      case 1:
+        ref.current.style.display = 'block';
+        ref.current.style.width = '25%';
+        ref.current.style.height = '2px';
+        ref.current.style.background = 'red';
+        break;
+      case 2:
+        ref.current.style.width = '50%';
+        ref.current.style.background = 'orange';
+        break;
+      case 3:
+        ref.current.style.width = '75%';
+        ref.current.style.background = 'yellow';
+        break;
+      case 4:
+        ref.current.style.width = '100%';
+        ref.current.style.background = 'green';
+        break;
+      default:
+        ref.current.style.display = 'none';
+        break;
+    }
+
+    return passedConditions === 4;
+  };
+
+  const formValidation = z
+    .object({
+      name: z
+        .string()
+        .min(1, { message: 'First letter must be uppercased' })
+        .refine((val) => val[0] === val[0]?.toUpperCase(), {
+          message: `First letter must be uppercased`,
+        }),
+      age: z.preprocess(
+        (val) => +z.string().parse(val),
+        z.number().positive('No negative values')
+      ),
+      email: z.string().email({ message: 'Invalid email address' }),
+      password: z.string().refine((password) => validatePassword(password), {
+        message:
+          ' 1 number, 1 uppercased letter, 1 lowercased letter, 1 special character',
+      }),
+      repeatPassword: z.string(),
+      sex: z.string().refine((val) => val !== 'choose', {
+        message: `Choose gender`,
+      }),
+      terms: z.boolean().refine((val) => val === true, {
+        message: `Accept terms`,
+      }),
+      image: z
+        .union([
+          z.string(),
+          z.instanceof(FileList),
+          z.instanceof(ArrayBuffer),
+          z.null(),
+        ])
+        .refine(
+          (files) => {
+            if (!(files instanceof FileList)) return true;
+
+            return files.length > 0;
+          },
+          {
+            message: 'No files selected',
+          }
+        )
+        .refine(
+          (file) => {
+            if (!(file instanceof FileList)) return true;
+
+            return ['image/png', 'image/jpeg'].includes(file[0]?.type);
+          },
+          {
+            message: 'Invalid image file type',
+          }
+        )
+        .refine(
+          (file) => {
+            if (!(file instanceof FileList)) return true;
+
+            return file[0]?.size <= FILE_SIZE_LIMIT;
+          },
+          {
+            message: 'File size should not exceed 1MB',
+          }
+        ),
+      country: z.string().refine((val) => !!val, {
+        message: `Choose country`,
+      }),
+    })
+    .refine((data) => data.password === data.repeatPassword, {
+      message: "Passwords don't match",
+      path: ['repeatPassword'],
+    });
+
   const {
     register,
     handleSubmit,
@@ -127,6 +155,7 @@ export default function FormControl() {
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const ref = useRef<HTMLSpanElement>(null);
 
   const onSubmit: SubmitHandler<IFormData> = async (data) => {
     if (data.image instanceof FileList) {
@@ -157,6 +186,7 @@ export default function FormControl() {
           placeholder="Password"
           {...register('password')}
         />
+        <span className={styles.passwordStrength} ref={ref}></span>
         <output className={styles.error}>{errors.password?.message}</output>
         <input
           type="password"

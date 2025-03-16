@@ -31,7 +31,7 @@ const FormUncontrol = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const ref = useRef<HTMLSpanElement>(null);
   const formData: IFormData = {
     name: '',
     age: 0,
@@ -42,6 +42,43 @@ const FormUncontrol = () => {
     terms: false,
     country: '',
     image: '',
+  };
+
+  const validatePassword = (password: string) => {
+    let passedConditions = 0;
+
+    if (hasNumber.test(password)) passedConditions++;
+    if (hasUppercase.test(password)) passedConditions++;
+    if (hasLowercase.test(password)) passedConditions++;
+    if (hasSpecialChar.test(password)) passedConditions++;
+
+    if (ref.current === null) return false;
+
+    switch (passedConditions) {
+      case 1:
+        ref.current.style.display = 'block';
+        ref.current.style.width = '25%';
+        ref.current.style.height = '2px';
+        ref.current.style.background = 'red';
+        break;
+      case 2:
+        ref.current.style.width = '50%';
+        ref.current.style.background = 'orange';
+        break;
+      case 3:
+        ref.current.style.width = '75%';
+        ref.current.style.background = 'yellow';
+        break;
+      case 4:
+        ref.current.style.width = '100%';
+        ref.current.style.background = 'green';
+        break;
+      default:
+        ref.current.style.display = 'none';
+        break;
+    }
+
+    return passedConditions === 4;
   };
 
   const SPECIAL_CHARS = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
@@ -65,20 +102,10 @@ const FormUncontrol = () => {
         z.number().positive('No negative values')
       ),
       email: z.string().email({ message: 'Invalid email address' }),
-      password: z
-        .string()
-        .refine((password) => hasNumber.test(password), {
-          message: 'Password must contain at least 1 number',
-        })
-        .refine((password) => hasUppercase.test(password), {
-          message: 'Password must contain at least 1 uppercase letter',
-        })
-        .refine((password) => hasLowercase.test(password), {
-          message: 'Password must contain at least 1 lowercase letter',
-        })
-        .refine((password) => hasSpecialChar.test(password), {
-          message: `Must contain special character: ${SPECIAL_CHARS}`,
-        }),
+      password: z.string().refine((password) => validatePassword(password), {
+        message:
+          ' 1 number, 1 uppercased letter, 1 lowercased letter, 1 special character',
+      }),
       repeatPassword: z.string(),
       sex: z.string().refine((val) => val !== 'choose', {
         message: `Choose gender`,
@@ -194,6 +221,7 @@ const FormUncontrol = () => {
         <input type="email" name="email" placeholder="Email" />
         <output className={styles.error} name="err-email"></output>
         <input type="password" name="password" placeholder="Password" />
+        <span className={styles.passwordStrength} ref={ref}></span>
         <output className={styles.error} name="err-password"></output>
         <input
           type="password"
