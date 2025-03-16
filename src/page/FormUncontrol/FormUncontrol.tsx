@@ -36,9 +36,12 @@ const FormUncontrol = () => {
 
   const formValidation = z
     .object({
-      name: z.string().refine((val) => val[0] === val[0].toUpperCase(), {
-        message: `First letter must be uppercased`,
-      }),
+      name: z
+        .string()
+        .min(1, { message: 'Name is required' })
+        .refine((val) => val[0] === val[0]?.toUpperCase(), {
+          message: `First letter must be uppercased`,
+        }),
       age: z.preprocess(
         (val) => +z.string().parse(val),
         z.number().positive('No negative values')
@@ -63,7 +66,6 @@ const FormUncontrol = () => {
       terms: z.boolean().refine((val) => val === true, {
         message: `Accept terms`,
       }),
-      // image: z.string().email({ message: 'Invalid email address' }),
       // country: z.string().email({ message: 'Invalid email address' }),
     })
     .refine((data) => data.password === data.repeatPassword, {

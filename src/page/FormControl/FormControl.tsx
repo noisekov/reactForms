@@ -18,11 +18,16 @@ interface IFormData {
   image: string;
 }
 
+const FILE_SIZE_LIMIT = 1024 * 1024; // 1MB
+
 const formValidation = z
   .object({
-    name: z.string().refine((val) => val[0] === val[0].toUpperCase(), {
-      message: `First letter must be uppercased`,
-    }),
+    name: z
+      .string()
+      .min(1, { message: 'Name is required' })
+      .refine((val) => val[0] === val[0]?.toUpperCase(), {
+        message: `First letter must be uppercased`,
+      }),
     age: z.preprocess(
       (val) => +z.string().parse(val),
       z.number().positive('No negative values')
@@ -47,7 +52,17 @@ const formValidation = z
     terms: z.boolean().refine((val) => val === true, {
       message: `Accept terms`,
     }),
-    // image: z.string().email({ message: 'Invalid email address' }),
+    image: z
+      .instanceof(FileList)
+      .refine((files) => files.length > 0, {
+        message: 'No files selected',
+      })
+      .refine(([file]) => ['image/png', 'image/jpeg'].includes(file?.type), {
+        message: 'Invalid image file type',
+      })
+      .refine(([file]) => file?.size <= FILE_SIZE_LIMIT, {
+        message: 'File size should not exceed 1MB',
+      }),
     // country: z.string().email({ message: 'Invalid email address' }),
   })
   .refine((data) => data.password === data.repeatPassword, {
@@ -98,20 +113,15 @@ export default function FormControl() {
         Accept terms and conditions agreement
       </label>
       <output className={styles.error}>{errors.terms?.message}</output>
+      <input {...register('image')} type="file" />
+      <output className={styles.error}>{errors.image?.message}</output>
 
       <button name="submit" type="submit">
         Submit
       </button>
 
       {/* 
-      
-      <label className={styles.label}>
-        <input type="checkbox" name="terms" />
-        Accept terms and conditions agreement
-      </label>
-      <output className={styles.error} name="err-terms"></output>
-      <input name="image" type="file" />
-      <output className={styles.error} name="err-image"></output>
+     
       <label className={styles.label}>
         <input type="text" name="country" list="countries" />
         Country
