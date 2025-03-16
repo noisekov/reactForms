@@ -167,7 +167,7 @@ export default function FormControl() {
           {errors.repeatPassword?.message}
         </output>
         <select {...register('sex')}>
-          <option value="choose">-- Choose sex --</option>
+          <option value="choose">-- Choose gender --</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
         </select>

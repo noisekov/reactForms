@@ -202,7 +202,7 @@ const FormUncontrol = () => {
         />
         <output className={styles.error} name="err-repeatPassword"></output>
         <select name="sex">
-          <option value="choose">-- Choose sex --</option>
+          <option value="choose">-- Choose gender --</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
         </select>
