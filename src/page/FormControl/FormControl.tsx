@@ -1,66 +1,116 @@
-// import { useForm } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import styles from './FormControl.module.css';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useDispatch } from 'react-redux';
+import { addData } from '../../features/dataSlice';
+import { useNavigate } from 'react-router-dom';
 
-const FormControl = () => {
+interface IFormData {
+  name: string;
+  age: number;
+  email: string;
+  password: string;
+  repeatPassword: string;
+  // sex: string;
+  // terms: boolean;
+  // country: string;
+  // image: string;
+}
+
+const formValidation = z
+  .object({
+    name: z.string().refine((val) => val[0] === val[0].toUpperCase(), {
+      message: `First letter must be uppercased`,
+    }),
+    age: z.preprocess(
+      (val) => +z.string().parse(val),
+      z.number().positive('No negative values')
+    ),
+    email: z.string().email({ message: 'Invalid email address' }),
+    password: z.string().refine(
+      (password) => {
+        return password.split('').some((char) => {
+          if (typeof +char === 'number' && !Number.isNaN(+char)) {
+            return true;
+          }
+        });
+      },
+      {
+        message: `1 number, 1 uppercased letter, 1 lowercased letter, 1 special character`,
+      }
+    ),
+    repeatPassword: z.string(),
+  })
+  .refine((data) => data.password === data.repeatPassword, {
+    message: "Passwords don't match",
+    path: ['repeatPassword'],
+  });
+
+export default function FormControl() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
-  // const onSubmit = (data) => console.log(data);
-  console.log(errors);
+  } = useForm<IFormData>({
+    resolver: zodResolver(formValidation),
+  });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<IFormData> = (data) => {
+    dispatch(addData(data));
+    navigate('/reactForms');
+  };
 
   return (
-    <form
-      onSubmit={handleSubmit((data) => console.log(data))}
-      className={styles.form}
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+      <input placeholder="Name" {...register('name')} />
+      <output className={styles.error}>{errors.name?.message}</output>
+      <input type="number" placeholder="Age" {...register('age')} />
+      <output className={styles.error}>{errors.age?.message}</output>
+      <input type="email" placeholder="Email" {...register('email')} />
+      <output className={styles.error}>{errors.email?.message}</output>
+      <input type="password" placeholder="Password" {...register('password')} />
+      <output className={styles.error}>{errors.password?.message}</output>
       <input
-        type="text"
-        placeholder="First name"
-        {...register('First name', { required: true, maxLength: 80 })}
+        type="password"
+        placeholder="Repeat password"
+        {...register('repeatPassword')}
       />
-      <input
-        type="text"
-        placeholder="Last name"
-        {...register('Last name', { required: true, maxLength: 100 })}
-      />
-      <input
-        type="text"
-        placeholder="Email"
-        {...register('Email', { required: true, pattern: /^\S+@\S+$/i })}
-      />
-      <input
-        type="tel"
-        placeholder="Mobile number"
-        {...register('Mobile number', {
-          required: true,
-          minLength: 6,
-          maxLength: 12,
-        })}
-      />
-      <select {...register('Title', { required: true })}>
-        <option value="Mr">Mr</option>
-        <option value="Mrs">Mrs</option>
-        <option value="Miss">Miss</option>
-        <option value="Dr">Dr</option>
+      <output className={styles.error}>{errors.repeatPassword?.message}</output>
+
+      <button name="submit" type="submit">
+        Submit
+      </button>
+
+      {/* 
+      <select name="sex">
+        <option disabled>-- Choose sex --</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
       </select>
-
-      <input
-        {...register('Developer', { required: true })}
-        type="radio"
-        value="Yes"
-      />
-      <input
-        {...register('Developer', { required: true })}
-        type="radio"
-        value="No"
-      />
-
-      <input type="submit" />
+      <output className={styles.error} name="err-sex"></output>
+      <label className={styles.label}>
+        <input type="checkbox" name="terms" />
+        Accept terms and conditions agreement
+      </label>
+      <output className={styles.error} name="err-terms"></output>
+      <input name="image" type="file" />
+      <output className={styles.error} name="err-image"></output>
+      <label className={styles.label}>
+        <input type="text" name="country" list="countries" />
+        Country
+        <datalist id="countries">
+          {['Ukraine', 'Russia', 'Belarus', 'Poland', 'Germany'].map(
+            (country, index) => (
+              <option key={index} value={country} />
+            )
+          )}
+        </datalist>
+      </label>
+      <output className={styles.error} name="err-country"></output>
+       */}
     </form>
   );
-};
-
-export default FormControl;
+}

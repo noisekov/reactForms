@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addData } from '../../features/dataSlice';
 
-type formData = {
+interface formData {
   name: string;
   age: number;
   email: string;
@@ -15,12 +15,13 @@ type formData = {
   terms: boolean;
   country: string;
   image: string;
-};
+}
 
 const FormUncontrol = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const formData: formData = {
     name: '',
     age: 0,
@@ -32,6 +33,39 @@ const FormUncontrol = () => {
     country: '',
     image: '',
   };
+
+  const formValidation = z
+    .object({
+      name: z.string().refine((val) => val[0] === val[0].toUpperCase(), {
+        message: `First letter must be uppercased`,
+      }),
+      age: z.preprocess(
+        (val) => +z.string().parse(val),
+        z.number().positive('No negative values')
+      ),
+      email: z.string().email({ message: 'Invalid email address' }),
+      password: z.string().refine(
+        (password) => {
+          return password.split('').some((char) => {
+            if (typeof +char === 'number' && !Number.isNaN(+char)) {
+              return true;
+            }
+          });
+        },
+        {
+          message: `1 number, 1 uppercased letter, 1 lowercased letter, 1 special character`,
+        }
+      ),
+      repeatPassword: z.string(),
+      // sex: z.string().email({ message: 'Invalid email address' }),
+      // terms: z.string().email({ message: 'Invalid email address' }),
+      // image: z.string().email({ message: 'Invalid email address' }),
+      // country: z.string().email({ message: 'Invalid email address' }),
+    })
+    .refine((data) => data.password === data.repeatPassword, {
+      message: "Passwords don't match",
+      path: ['repeatPassword'],
+    });
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -73,39 +107,6 @@ const FormUncontrol = () => {
       (formData[inputElement.name as keyof formData] as string) =
         inputElement.value;
     }
-
-    const formValidation = z
-      .object({
-        name: z.string().refine((val) => val[0] === val[0].toUpperCase(), {
-          message: `First letter must be uppercased`,
-        }),
-        age: z.preprocess(
-          (val) => +z.string().parse(val),
-          z.number().positive('No negative values')
-        ),
-        email: z.string().email({ message: 'Invalid email address' }),
-        password: z.string().refine(
-          (password) => {
-            return password.split('').some((char) => {
-              if (typeof +char === 'number' && !Number.isNaN(+char)) {
-                return true;
-              }
-            });
-          },
-          {
-            message: `1 number, 1 uppercased letter, 1 lowercased letter, 1 special character`,
-          }
-        ),
-        repeatPassword: z.string(),
-        // sex: z.string().email({ message: 'Invalid email address' }),
-        // terms: z.string().email({ message: 'Invalid email address' }),
-        // image: z.string().email({ message: 'Invalid email address' }),
-        // country: z.string().email({ message: 'Invalid email address' }),
-      })
-      .refine((data) => data.password === data.repeatPassword, {
-        message: "Passwords don't match",
-        path: ['repeatPassword'],
-      });
 
     try {
       formValidation.parse(formData);
